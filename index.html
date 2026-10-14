@@ -4,7 +4,6 @@
 <meta charset="utf-8">
 <title>Marcador de Fútbol — Panel y Pantalla OBS</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-   <link rel="icon" href="marcador.png">
 <style>
 *{box-sizing:border-box}
 :root{--bg:#12161d;--bg2:#1a2029;--bg3:#232b37;--line:#313b4a;--tx:#e8edf4;--mut:#93a0b3;--acc:#f2b632;--ok:#2e9d5b;--bad:#d04545;--info:#3a7bd5}
@@ -71,7 +70,7 @@ body.verde{background:#00b140}
 .bug{display:grid;grid-template-columns:auto 210px auto;filter:drop-shadow(0 6px 14px rgba(0,0,0,.45))}
 .bside{display:flex;align-items:stretch;height:70px}
 .bside .lg{width:78px;background:#0a0d12;display:flex;align-items:center;justify-content:center}
-.bside .nm{min-width:150px;padding:0 20px;display:flex;align-items:center;justify-content:center;font-size:40px;font-weight:800;letter-spacing:1px}
+.bside .nm{background:var(--tc);color:var(--tc2);min-width:150px;padding:0 20px;display:flex;align-items:center;justify-content:center;font-size:40px;font-weight:800;letter-spacing:1px}
 .bside .gl{width:76px;background:#0a0d12;display:flex;align-items:center;justify-content:center;font-size:50px;font-weight:800;font-variant-numeric:tabular-nums}
 .bclk{background:#f4f4f0;color:#0a0d12;display:flex;flex-direction:column;align-items:center;justify-content:center;font-variant-numeric:tabular-nums;line-height:1}
 .bclk #clk{font-size:40px;font-weight:800}
@@ -252,6 +251,64 @@ kbd{font:11px monospace;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,
 .pp{animation:ppin .55s both;transform-box:fill-box;transform-origin:center}
 .pp.off>*{opacity:.45}
 @keyframes ppin{from{opacity:0;transform:scale(0)}to{opacity:1;transform:none}}
+button.dis{opacity:.35;filter:grayscale(.6)}
+.toast{background:#5a1d1d;border:1px solid #d04545;border-radius:8px;padding:10px 14px;margin-bottom:12px;color:#ffd7d7;line-height:1.6}
+button.arm{background:var(--acc);color:#1b1500;border-color:var(--acc);animation:armp .6s ease-in-out infinite alternate}
+@keyframes armp{from{box-shadow:0 0 0 0 rgba(242,182,50,.7)}to{box-shadow:0 0 0 7px rgba(242,182,50,0)}}
+.intro .half.a{background:linear-gradient(120deg,var(--tc),#05070b 130%)}
+.intro .half.b{background:linear-gradient(240deg,var(--tc),#05070b 130%)}
+#wipe{position:absolute;top:-10%;bottom:-10%;left:-60%;width:55%;background:linear-gradient(90deg,transparent,rgba(45,226,255,.55) 30%,#fff 50%,rgba(45,226,255,.55) 70%,transparent);transform:skewX(-18deg);opacity:0;pointer-events:none}
+#wipe.go{animation:wipex .85s cubic-bezier(.6,0,.3,1)}
+@keyframes wipex{0%{left:-60%;opacity:1}100%{left:120%;opacity:1}}
+@keyframes uglow{0%{filter:drop-shadow(0 0 0 rgba(45,226,255,0))}40%{filter:drop-shadow(0 0 34px rgba(45,226,255,.95))}100%{filter:drop-shadow(0 0 0 rgba(45,226,255,0))}}
+@keyframes twinkle{from{opacity:.5}to{opacity:1}}
+@keyframes beam{from{transform:rotate(10deg);opacity:.6}to{transform:rotate(18deg);opacity:1}}
+@keyframes urow{from{opacity:0;transform:translateX(-70px);filter:blur(8px)}to{opacity:1;transform:none;filter:none}}
+/* ===== Estilo noche de copa europea ===== */
+#stage.ucl .bug{filter:drop-shadow(0 10px 26px rgba(0,8,50,.75))}
+#stage.ucl .bw.enter{animation:wipe .9s cubic-bezier(.2,.8,.2,1),uglow 1.7s ease-out}
+#stage.ucl .bside{height:66px}
+#stage.ucl .bside .lg{background:linear-gradient(180deg,#0f1d78,#060c3a);width:76px}
+#stage.ucl .bside .nm{background:linear-gradient(180deg,#12237f,#070e3e);color:#fff;font-size:36px;letter-spacing:3px;min-width:140px;box-shadow:inset 0 -6px 0 var(--tc),inset 0 1px 0 rgba(255,255,255,.18)}
+#stage.ucl .bside .gl{background:linear-gradient(180deg,#fff,#c9d5ff);color:#070e3e;width:72px}
+#stage.ucl .bclk{background:linear-gradient(180deg,#0f1d78,#060c3a);color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.18);border-left:2px solid rgba(45,226,255,.5);border-right:2px solid rgba(45,226,255,.5)}
+#stage.ucl .bclk #clk{text-shadow:0 0 14px rgba(45,226,255,.7)}
+#stage.ucl .bclk #ov{color:#ffd23f}
+#stage.ucl .brow .mid2{background:linear-gradient(90deg,#070e3e,#1a2fa8,#070e3e);color:#d7ecff;border-bottom:2px solid #2de2ff}
+#stage.ucl .gc{background:linear-gradient(90deg,#070e3e,#12237f)}
+#stage.ucl .scene{background:radial-gradient(ellipse at 50% 25%,rgba(30,60,190,.78),rgba(3,6,34,.95) 72%)}
+#stage.ucl .scene::before{content:'';position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(2px 2px at 12% 22%,rgba(255,255,255,.85),transparent),radial-gradient(1.5px 1.5px at 33% 68%,rgba(255,255,255,.65),transparent),radial-gradient(2.5px 2.5px at 56% 38%,rgba(190,230,255,.9),transparent),radial-gradient(1.5px 1.5px at 77% 14%,rgba(255,255,255,.7),transparent),radial-gradient(2px 2px at 89% 62%,rgba(255,255,255,.8),transparent),radial-gradient(1.5px 1.5px at 66% 88%,rgba(190,230,255,.7),transparent),radial-gradient(2px 2px at 22% 90%,rgba(255,255,255,.7),transparent);background-size:640px 420px;animation:twinkle 6s ease-in-out infinite alternate}
+#stage.ucl .scene>*{position:relative}
+#stage.ucl .intro{background:radial-gradient(ellipse at 50% 35%,#1a2fb0,#040830 78%)}
+#stage.ucl .intro .half,#stage.ucl .intro.hasbg .half{opacity:.55}
+#stage.ucl .intro::after{content:'';position:absolute;left:50%;top:-12%;width:760px;height:135%;margin-left:-380px;background:radial-gradient(ellipse at center,rgba(130,210,255,.4),transparent 66%);transform:rotate(14deg);pointer-events:none;animation:beam 5s ease-in-out infinite alternate}
+#stage.ucl .intro .ic,#stage.ucl .intro .info,#stage.ucl .cdbox{z-index:2}
+#stage.ucl .intro .vs{background:transparent;color:#fff;border:4px solid #2de2ff;box-shadow:0 0 44px rgba(45,226,255,.55),inset 0 0 28px rgba(45,226,255,.35)}
+#stage.ucl .intro h2{text-transform:uppercase;letter-spacing:5px}
+#stage.ucl .intro .tn>:first-child{filter:drop-shadow(0 0 30px rgba(120,200,255,.6))}
+#stage.ucl #cdt{background:linear-gradient(180deg,#fff,#7fe9ff);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none;filter:drop-shadow(0 0 30px rgba(45,226,255,.6))}
+#stage.ucl .lu,#stage.ucl .panelx{background:linear-gradient(180deg,rgba(12,24,100,.94),rgba(4,8,38,.96));border-top:0;box-shadow:0 0 0 1px rgba(120,170,255,.35),0 30px 90px rgba(0,6,44,.75);position:relative}
+#stage.ucl .lu::before,#stage.ucl .panelx::before{content:'';position:absolute;left:0;right:0;top:0;height:6px;background:linear-gradient(90deg,var(--c1,#2de2ff),#fff,#2de2ff)}
+#stage.ucl .lu .lh{background:linear-gradient(100deg,var(--c1),#0c1a70 88%);color:#fff;margin-top:6px}
+#stage.ucl .lu .lh h1{text-transform:uppercase;letter-spacing:3px}
+#stage.ucl .lu h4{color:#2de2ff}
+#stage.ucl .pr{border-bottom:1px solid rgba(130,170,255,.2);animation:urow .65s both}
+#stage.ucl .pr b{background:linear-gradient(180deg,#fff,#c9d5ff);color:#070e3e;clip-path:polygon(9px 0,100% 0,calc(100% - 9px) 100%,0 100%);border-radius:0}
+#stage.ucl .panelx h1{font-size:46px;letter-spacing:7px;text-transform:uppercase;background:linear-gradient(90deg,#fff,#7fe9ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+#stage.ucl .panelx .rr{border-bottom:1px solid rgba(130,170,255,.2)}
+#stage.ucl .stbar{height:14px;background:rgba(255,255,255,.08)}
+#stage.ucl .stl{color:#9fdcff;letter-spacing:4px;text-transform:uppercase;font-size:22px}
+#stage.ucl .sumhead .res{background:linear-gradient(180deg,#fff,#c9d5ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+#stage.ucl .winner{color:#7fe9ff}
+#stage.ucl .fl{width:1240px;margin-left:-620px;bottom:150px;box-shadow:none;filter:drop-shadow(0 18px 40px rgba(0,8,50,.7))}
+#stage.ucl .fl .ft{background:linear-gradient(90deg,var(--c1),#0f1d78);color:#fff;clip-path:polygon(0 0,calc(100% - 70px) 0,100% 100%,0 100%);width:78%;font-size:44px;letter-spacing:7px;padding:10px 44px;text-transform:uppercase}
+#stage.ucl .fl .fb{background:linear-gradient(90deg,#060c3a,#14288f);border-left:10px solid var(--c1);clip-path:polygon(0 0,100% 0,calc(100% - 70px) 100%,0 100%);padding:22px 90px 22px 34px}
+#stage.ucl .fl .l1{text-transform:uppercase;letter-spacing:2px}
+#stage.ucl .fl .l2{color:#9fdcff;letter-spacing:3px;text-transform:uppercase;font-size:28px}
+#stage.ucl .fl.goal .ft{font-size:76px;letter-spacing:12px;padding:6px 50px}
+#stage.ucl .brk{background:linear-gradient(90deg,#060c3a,#14288f);border-left-color:#2de2ff;clip-path:polygon(0 0,100% 0,calc(100% - 30px) 100%,0 100%);padding-right:60px}
+#stage.ucl .tick{background:linear-gradient(90deg,#060c3a,#14288f);border-top:3px solid #2de2ff}
+#stage.ucl #burst.bg{background:radial-gradient(circle at 50% 72%,rgba(255,255,255,.85) 0,var(--bc) 24%,transparent 70%)}
 @media (prefers-reduced-motion:reduce){#stage *{animation:none!important}}
 </style>
 </head>
@@ -298,7 +355,7 @@ const def=()=>({
  ticker:{on:false,text:''},
  cust:{t:'',l1:'',l2:''},
  flash:null,auto:true,fx:true,cd:{min:5,dur:300000,base:0,t0:0,running:false},
- ui:{pos:'tl',scale:100,scorers:true}
+ ui:{pos:'tl',scale:100,scorers:true,safe:true,theme:'ucl'}
 });
 function merge(d,s){for(const k in s){if(s[k]&&typeof s[k]==='object'&&!Array.isArray(s[k])&&d[k]&&typeof d[k]==='object'&&!Array.isArray(d[k]))merge(d[k],s[k]);else d[k]=s[k];}return d;}
 function load(){try{const r=JSON.parse(localStorage.getItem(KEY));return r?merge(def(),r):def();}catch(e){return def();}}
@@ -387,14 +444,14 @@ function autoFlash(e,prevYellows){
 /* =========================================================
    PANTALLA PARA OBS
    ========================================================= */
-let lastR=null,lastFlash=0,flashTimer=null,lastSc=null,bugEnter=false,fxRaf=0;const SIG={},POP={A:false,B:false};
+let lastSceneKey=null,lastR=null,lastFlash=0,flashTimer=null,lastSc=null,bugEnter=false,fxRaf=0;const SIG={},POP={A:false,B:false};
 function setHTML(id,sig,html){const el=document.getElementById(id);if(SIG[id]!==sig){SIG[id]=sig;el.innerHTML=html;}}
 
 function bugHTML(d){
  const A=S.A,B=S.B;
  const side=(t,T,rev)=>{
   const lgx=`<div class="lg">${lg(t,56)}</div>`;
-  const nm=`<div class="nm${POP[t]?' glow':''}" style="background:${T.c1};color:${T.c2}">${esc(T.short||T.name)}</div>`;
+  const nm=`<div class="nm${POP[t]?' glow':''}" style="--tc:${T.c1};--tc2:${T.c2}">${esc(T.short||T.name)}</div>`;
   const gl=`<div class="gl${POP[t]?' pop':''}">${d.sc[t]}</div>`;
   return `<div class="bside">${rev?gl+nm+lgx:lgx+nm+gl}</div>`;
  };
@@ -467,8 +524,8 @@ function sceneHTML(d){
  if(!sc)return '';
  if(sc==='intro'){
   return `<div class="intro${m.bg?' hasbg':''}" style="${m.bg?`background:url('${m.bg}') center/cover`:''}">
-   <div class="half a" style="background:linear-gradient(120deg,${S.A.c1},#05070b 130%)"></div>
-   <div class="half b" style="background:linear-gradient(240deg,${S.B.c1},#05070b 130%)"></div>
+   <div class="half a" style="--tc:${S.A.c1}"></div>
+   <div class="half b" style="--tc:${S.B.c1}"></div>
    ${m.logo?`<img src="${esc(m.logo)}" style="position:absolute;top:50px;left:50%;margin-left:-80px;width:160px;height:160px;object-fit:contain">`:''}
    <div class="ic"><div class="tn">${lg('A',300)}<h2 style="color:${S.A.c2}">${esc(S.A.name)}</h2></div><div class="vs">VS</div><div class="tn">${lg('B',300)}<h2 style="color:${S.B.c2}">${esc(S.B.name)}</h2></div></div>
    <div class="info"><b>${esc(m.torneo)}${m.fase?' · '+esc(m.fase):''}</b><br><small>${[m.estadio,m.fecha,m.hora].filter(Boolean).map(esc).join('  ·  ')}</small></div>
@@ -476,8 +533,8 @@ function sceneHTML(d){
  }
  if(sc==='cd'){
   return `<div class="intro${m.bg?' hasbg':''}" style="${m.bg?`background:url('${m.bg}') center/cover`:''}">
-   <div class="half a" style="background:linear-gradient(120deg,${S.A.c1},#05070b 130%)"></div>
-   <div class="half b" style="background:linear-gradient(240deg,${S.B.c1},#05070b 130%)"></div>
+   <div class="half a" style="--tc:${S.A.c1}"></div>
+   <div class="half b" style="--tc:${S.B.c1}"></div>
    <div class="ic" style="padding-bottom:300px"><div class="tn">${lg('A',230)}<h2 style="color:${S.A.c2};font-size:60px">${esc(S.A.name)}</h2></div><div class="vs" style="width:120px;height:120px;font-size:62px">VS</div><div class="tn">${lg('B',230)}<h2 style="color:${S.B.c2};font-size:60px">${esc(S.B.name)}</h2></div></div>
    <div class="cdbox"><div class="t1">${esc(m.torneo)}${m.fase?' · '+esc(m.fase):''}<br>EL PARTIDO COMIENZA EN</div><div id="cdt">${cdTxt()}</div></div></div>`;
  }
@@ -549,18 +606,20 @@ function fxFor(f){
  const T=f.team?S[f.team]:null,c1=T?T.c1:'#1b5fbf',c2=T?T.c2:'#ffffff';
  const b=document.getElementById('burst');if(!b)return;
  let cls='';
- if(f.type==='goal'){cls='bg';confetti([c1,c2,'#ffd23f','#ffffff'],5500);}
+ if(f.type==='goal'){cls='bg';confetti(S.ui.theme!=='classic'?[c1,'#ffffff','#2de2ff','#c9d6ff']:[c1,c2,'#ffd23f','#ffffff'],5500);}
  else if(f.type==='card'){cls=/ROJA|EXPULSADO/.test(f.title)?'br':'by';}
  if(cls){b.style.setProperty('--bc',c1);b.className='';void b.offsetWidth;b.className=cls;}
 }
 function renderDisplay(){
  const d=derive();
+ document.getElementById('stage').classList.toggle('ucl',S.ui.theme!=='classic');
  const wrap=document.getElementById('bugwrap');
  wrap.style.cssText=posStyle();wrap.style.position='absolute';
  POP.A=lastSc!==null&&d.sc.A>lastSc.A;POP.B=lastSc!==null&&d.sc.B>lastSc.B;
  bugEnter=wrap.innerHTML==='';lastSc={A:d.sc.A,B:d.sc.B};
  setHTML('bugwrap',JSON.stringify([S.bug,S.A.short,S.A.name,S.A.c1,S.A.c2,S.A.logo,S.B.short,S.B.name,S.B.c1,S.B.c2,S.B.logo,d.sc,d.red,S.clock.period,S.clock.added,S.pens,S.match.torneo,S.match.logo,d.goals,S.ui.scorers]),S.bug?bugHTML(d):'');
  setHTML('scene',JSON.stringify([S.scene,S.A,S.B,S.match,S.refs,S.events,S.adj,S.pens,S.clock.period>=9,S.stats,S.sp.items,S.cd]),sceneHTML(d));
+ {const sk=S.scene||'';if(sk!==lastSceneKey){if(lastSceneKey!==null&&S.ui.theme!=='classic'){const w=document.getElementById('wipe');if(w){w.className='';void w.offsetWidth;w.className='go';}}lastSceneKey=sk;}}
  setHTML('brk',JSON.stringify(S.brk),S.brk.on?`<div class="brk"><div>${esc(S.brk.label)}</div><div id="bt">${fmt(brkRem(),true)}</div></div>`:'');
  setHTML('tick',JSON.stringify(S.ticker),S.ticker.on&&S.ticker.text?`<div class="tick"><span>${esc(S.ticker.text)}</span></div>`:'');
  const f=S.flash,el=document.getElementById('flash');
@@ -597,7 +656,7 @@ function fit(){const s=Math.min(innerWidth/1920,innerHeight/1080);document.getEl
 function sync(){try{const r=localStorage.getItem(RKEY);if(r!==lastR){lastR=r;S=load();renderDisplay();}}catch(e){}}
 function initDisplay(){
  document.body.className='disp'+((location.hash==='#verde'||window.__GREEN)?' verde':'');
- document.getElementById('app').innerHTML='<div id="stage"><div id="spons"></div><div id="scene"></div><div id="bugwrap"></div><div id="burst"></div><canvas id="fx" width="1920" height="1080" style="position:absolute;left:0;top:0;pointer-events:none"></canvas><div id="flash"></div><div id="brk"></div><div id="tick"></div></div>';
+ document.getElementById('app').innerHTML='<div id="stage"><div id="spons"></div><div id="scene"></div><div id="bugwrap"></div><div id="wipe"></div><div id="burst"></div><canvas id="fx" width="1920" height="1080" style="position:absolute;left:0;top:0;pointer-events:none"></canvas><div id="flash"></div><div id="brk"></div><div id="tick"></div></div>';
  fit();addEventListener('resize',fit);
  sync();renderDisplay();
  addEventListener('storage',sync);
@@ -616,6 +675,24 @@ function setPath(o,path,v){const k=path.split('.');for(let i=0;i<k.length-1;i++)
 X.tab=t=>{TAB=t;render();window.scrollTo(0,0);};
 X.toLive=()=>{S.scene='';X.setPeriod(1);X.tab('live');};
 X.setPeriod=i=>{snapClock();const c=S.clock;c.period=i;c.base=0;c.running=false;c.added=0;if(P[i].k==='pen'){S.pens.on=true;S.scene='pens';}commit();render();};
+let ARM=null,BLK=null,DUP=null,TOAST=null,ARMT=0;
+const typing=()=>{const a=document.activeElement;return !!a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)&&a.type!=='checkbox'&&a.type!=='range';};
+function armed(k){return !!ARM&&ARM.k===k&&Date.now()-ARM.t<3500;}
+function armNow(k){ARM={k,t:Date.now()};render();clearTimeout(ARMT);ARMT=setTimeout(()=>{ARM=null;if(!typing())render();},3600);}
+X.safe=(k,fn)=>{if(S.ui.safe===false||armed(k)){ARM=null;clearTimeout(ARMT);fn();return;}armNow(k);};
+X.sceneSafe=k=>{if(S.scene===k)X.scene(k);else X.safe(k,()=>X.scene(k));};
+X.toast=m=>{TOAST=m;render();setTimeout(()=>{TOAST=null;if(!typing())render();},4500);};
+function blockReason(type){
+ const p=S.clock.period;
+ if(S.scene==='cd')return 'Hay una cuenta regresiva en pantalla: el partido todavía no empieza.';
+ if(p===0)return 'El partido todavía no empieza (estás en la Previa). Inicia el 1T antes de registrar eventos.';
+ if(p===9)return 'El partido ya terminó (fase Final).';
+ if(type==='goal'&&(p===2||p===4||p===6))return 'Estás en un descanso: no puede haber goles ahora.';
+ if(p===8)return 'Estás en la tanda de penales: usa la pestaña Penales (los goles normales no aplican).';
+ return '';
+}
+X.blkClose=()=>{BLK=null;render();};
+X.blkForce=()=>{const b=BLK;BLK=null;if(b)X.ev(b.type,b.team,true);};
 let UNDOCLK=null,SNAPBUSY=false;
 function snapClock(){if(SNAPBUSY)return;UNDOCLK={c:JSON.parse(JSON.stringify(S.clock))};}
 X.undoClock=()=>{if(!UNDOCLK)return;S.clock=UNDOCLK.c;UNDOCLK=null;commit();render();};
@@ -623,7 +700,10 @@ X.resetClock=()=>{const c=S.clock;if(P[c.period].s===undefined)return;snapClock(
 X.start=()=>{
  const c=S.clock;if(P[c.period].s!==undefined){X.toggle();return;}
  const d=derive(),t=c.period===0?1:c.period===2?3:c.period===6?7:(c.period===4&&d.sc.A===d.sc.B)?5:null;
- if(t===null)return;snapClock();SNAPBUSY=true;try{X.setPeriod(t);X.toggle();}finally{SNAPBUSY=false;}
+ if(t===null)return;
+ if(S.ui.safe!==false&&!armed('kickoff')){armNow('kickoff');return;}
+ ARM=null;if(['cd','intro','lineA','lineB','lineAB','pitchA','pitchB','refs'].includes(S.scene))S.scene='';
+ snapClock();SNAPBUSY=true;try{X.setPeriod(t);X.toggle();}finally{SNAPBUSY=false;}
 };
 X.toggle=()=>{const c=S.clock;if(P[c.period].s===undefined)return;snapClock();if(c.running){c.base=elapsed();c.running=false;}else{c.t0=Date.now();c.running=true;}commit();render();};
 X.adjClock=sec=>{const c=S.clock;if(P[c.period].s===undefined)return;snapClock();c.base=Math.max(0,elapsed()+sec*1000);if(c.running)c.t0=Date.now();commit();};
@@ -645,9 +725,13 @@ X.brkToggle=()=>{const b=S.brk;if(b.running){b.base+=Date.now()-b.t0;b.running=f
 X.brkHide=()=>{S.brk.on=false;S.brk.running=false;commit();render();};
 X.brkDur=v=>{BRKMIN=+v||3;};
 let BRKMIN=3;
-X.ev=(type,team)=>{EV={type,team,pi:'',pi2:'',min:'',free:'',own:false,pen:false};render();setTimeout(()=>{const s=document.getElementById('evpi');if(s)s.focus({preventScroll:true});const f=document.getElementById('evform');if(f&&f.scrollIntoView)f.scrollIntoView({block:'nearest'});},30);};
-X.evCancel=()=>{EV=null;render();};
-X.evAdd=()=>{
+X.ev=(type,team,force)=>{const br=blockReason(type);if(br&&!force){BLK={type,team,reason:br};EV=null;render();return;}BLK=null;DUP=null;EV={type,team,pi:'',pi2:'',min:'',free:'',own:false,pen:false};render();setTimeout(()=>{const s=document.getElementById('evpi');if(s)s.focus({preventScroll:true});const f=document.getElementById('evform');if(f&&f.scrollIntoView)f.scrollIntoView({block:'nearest'});},30);};
+X.evCancel=()=>{EV=null;DUP=null;render();};
+X.evAdd=(force)=>{
+ if(!EV)return;
+ const pi0=EV.pi===''?-1:+EV.pi;
+ if(!force&&pi0>=0){const dup=S.events.find(x=>x.team===EV.team&&x.type===EV.type&&x.pi===pi0&&Date.now()-x.id<20000);if(dup){DUP=true;render();return;}}
+ DUP=null;
  const e={id:Date.now(),team:EV.team,type:EV.type,pi:EV.pi===''?-1:+EV.pi,pi2:EV.pi2===''?-1:+EV.pi2,min:EV.min.trim()||minLabel(),own:EV.own,pen:EV.pen,free:EV.free.trim()};
  const prev=S.events.filter(x=>x.type==='yellow'&&x.team===e.team&&x.pi===e.pi&&e.pi>=0).length;
  S.events.push(e);
@@ -660,7 +744,7 @@ X.bug=()=>{S.bug=!S.bug;commit();render();};
 X.hideFlash=()=>{S.flash=null;commit();};
 X.custFlash=()=>{flash('custom',null,S.cust.t||'AVISO',S.cust.l1,S.cust.l2,8000);commit();};
 X.quick=(t,l1)=>{flash('custom',null,t,l1,'',6000);commit();};
-X.pk=(t,r)=>{S.pens[t].push(r);commit();render();};
+X.pk=(t,r)=>{if(!S.pens.on||S.clock.period!==8){X.toast('Primero inicia la tanda de penales con el botón «Iniciar tanda de penales».');return;}S.pens[t].push(r);commit();render();};
 X.pkUndo=t=>{S.pens[t].pop();commit();render();};
 X.pensStart=()=>{S.pens.on=true;S.clock.period=8;S.clock.running=false;S.scene='pens';commit();render();};
 X.pensReset=()=>{if(confirm('¿Borrar toda la tanda de penales?')){S.pens={on:false,first:'A',A:[],B:[]};commit();render();}};
@@ -700,7 +784,7 @@ const LK='mfutbol_lib';
 function libGet(){try{const l=JSON.parse(localStorage.getItem(LK))||{};return{matches:l.matches||{},teams:l.teams||{}};}catch(e){return{matches:{},teams:{}};}}
 function libPut(l){try{localStorage.setItem(LK,JSON.stringify(l));return true;}catch(e){alert('No hay espacio para guardar. Borra algo de la biblioteca o usa imágenes más pequeñas.');return false;}}
 const fdate=ts=>{try{return new Date(ts).toLocaleString('es-BO',{dateStyle:'short',timeStyle:'short'});}catch(e){return '';}};
-X.cdStart=()=>{const m=Math.max(1,+S.cd.min||5);S.cd={min:m,dur:m*60000,base:0,t0:Date.now(),running:true};S.scene='cd';commit();render();};
+X.cdStart=()=>{if(S.clock.period!==0){X.toast('El partido ya empezó: la cuenta regresiva es solo para la previa.');return;}const m=Math.max(1,+S.cd.min||5);S.cd={min:m,dur:m*60000,base:0,t0:Date.now(),running:true};S.scene='cd';commit();render();};
 X.cdToggle=()=>{const c=S.cd;if(c.running){c.base+=Date.now()-c.t0;c.running=false;}else{if(c.base===0)c.dur=(+c.min||5)*60000;c.t0=Date.now();c.running=true;}commit();render();};
 X.cdReset=()=>{const c=S.cd;c.base=0;c.running=false;c.dur=(+c.min||5)*60000;commit();render();};
 X.libSaveMatch=()=>{
@@ -766,13 +850,13 @@ document.addEventListener('input',e=>{
 document.addEventListener('keydown',e=>{
  if(DISP||e.ctrlKey||e.altKey||e.metaKey)return;
  const tg=e.target.tagName,typing=(tg==='INPUT'&&e.target.type!=='checkbox'&&e.target.type!=='range')||tg==='TEXTAREA';
- if(EV&&e.key==='Enter'&&tg!=='BUTTON'){e.preventDefault();const a=document.getElementById('evpi'),b=document.getElementById('evpi2');if(a)EV.pi=a.value;if(b)EV.pi2=b.value;X.evAdd();return;}
+ if(EV&&e.key==='Enter'&&tg!=='BUTTON'){e.preventDefault();const a=document.getElementById('evpi'),b=document.getElementById('evpi2');if(a)EV.pi=a.value;if(b)EV.pi2=b.value;X.evAdd(DUP===true);return;}
  if(EV&&e.key==='Escape'){X.evCancel();return;}
  if(typing||tg==='SELECT')return;
  const K={KeyG:['goal','A'],KeyJ:['goal','B'],KeyY:['yellow','A'],KeyU:['yellow','B'],KeyR:['red','A'],KeyT:['red','B'],KeyC:['sub','A'],KeyV:['sub','B']};
  if(e.code==='Space'&&tg!=='BUTTON'){e.preventDefault();X.start();return;}
  if(K[e.code]){e.preventDefault();TAB='live';X.ev(K[e.code][0],K[e.code][1]);return;}
- if(e.code==='KeyH'){X.brkStart('PAUSA DE HIDRATACIÓN',BRKMIN);return;}
+ if(e.code==='KeyH'){X.safe('brk:h',()=>X.brkStart('PAUSA DE HIDRATACIÓN',BRKMIN));return;}
  if(e.code==='KeyM'){X.bug();return;}
  if(e.code==='KeyZ'){X.undoClock();return;}
  if(e.key==='Escape'){if(S.scene){S.scene='';commit();render();}else{S.flash=null;commit();}}
@@ -784,13 +868,13 @@ const EVN={goal:'⚽ Gol',yellow:'🟨 Amarilla',red:'🟥 Roja',sub:'🔄 Cambi
 
 const NEXTP=i=>{const d=derive(),tied=d.sc.A===d.sc.B;if(i===4)return tied?5:9;if(i===7)return tied?8:9;return i<9?i+1:null;};
 const SCN=k=>({intro:'🎬 Presentación',lineA:'👕 Alineación '+(S.A.short||'A'),lineB:'👕 Alineación '+(S.B.short||'B'),lineAB:'👕 Ambas alineaciones',refs:'🟨 Árbitros',spons:'🤝 Auspiciadores',stats:'📊 Estadísticas',sum:'📋 Resumen / Final',pens:'🥅 Penales',cd:'⏳ Cuenta regresiva',pitchA:'🧩 Táctica '+(S.A.short||'A'),pitchB:'🧩 Táctica '+(S.B.short||'B')})[k];
-function sceneBtns(keys){return `<div class="row"><button class="${S.bug?'on':''}" onclick="X.bug()">📺 Marcador</button>${keys.map(k=>`<button class="${S.scene===k?'on':''}" onclick="X.scene('${k}')">${SCN(k)}</button>`).join('')}<button class="r" onclick="S.scene='';commit();render()">✕ Quitar gráfico</button></div>`;}
+function sceneBtns(keys){return `<div class="row"><button class="${S.bug?'on':''}" onclick="X.bug()">📺 Marcador</button>${keys.map(k=>`<button class="${S.scene===k?'on':''}" onclick="X.sceneSafe('${k}')">${SCN(k)}</button>`).join('')}<button class="r" onclick="S.scene='';commit();render()">✕ Quitar gráfico</button></div>`;}
 
 function liveTab(){
  const d=derive(),c=S.clock,ci=clockInfo(),nx=NEXTP(c.period),hasClk=P[c.period].s!==undefined,stp=c.period===0?1:c.period===2?3:c.period===6?7:(c.period===4&&d.sc.A===d.sc.B)?5:null;
- const stLbl=hasClk?(c.running?'⏸ Parar / Pausar':(elapsed()>0?'▶ Reanudar':'▶ Iniciar '+P[c.period].l)):(stp?'▶ Iniciar '+P[stp].l:'');
+ const stLbl=hasClk?(c.running?'⏸ Parar / Pausar':(elapsed()>0?'▶ Reanudar':'▶ Iniciar '+P[c.period].l)):(stp?(armed('kickoff')?'⚠ ¿Seguro? Clic otra vez para iniciar '+P[stp].l:'▶ Iniciar '+P[stp].l):'');
  const quick=t=>`<div class="row"><span class="tm" style="background:${S[t].c1};color:${S[t].c2};padding:6px 12px;font-size:14px">${esc(S[t].short||S[t].name)}</span>
-  <button onclick="X.ev('goal','${t}')">⚽ Gol <kbd>${({A:'G',B:'J'})[t]}</kbd></button><button class="y" onclick="X.ev('yellow','${t}')">Amarilla <kbd>${({A:'Y',B:'U'})[t]}</kbd></button><button class="r" onclick="X.ev('red','${t}')">Roja <kbd>${({A:'R',B:'T'})[t]}</kbd></button><button class="b" onclick="X.ev('sub','${t}')">🔄 Cambio <kbd>${({A:'C',B:'V'})[t]}</kbd></button></div>`;
+  <button class="${blockReason('goal')?'dis':''}" onclick="X.ev('goal','${t}')">⚽ Gol <kbd>${({A:'G',B:'J'})[t]}</kbd></button><button class="y ${blockReason('yellow')?'dis':''}" onclick="X.ev('yellow','${t}')">Amarilla <kbd>${({A:'Y',B:'U'})[t]}</kbd></button><button class="r ${blockReason('red')?'dis':''}" onclick="X.ev('red','${t}')">Roja <kbd>${({A:'R',B:'T'})[t]}</kbd></button><button class="b ${blockReason('sub')?'dis':''}" onclick="X.ev('sub','${t}')">🔄 Cambio <kbd>${({A:'C',B:'V'})[t]}</kbd></button></div>`;
  let form='';
  if(EV){
   const sub=EV.type==='sub';
@@ -802,7 +886,8 @@ function liveTab(){
   <div class="row"><label>o escribe el nombre</label><input value="${esc(EV.free)}" oninput="EV.free=this.value" placeholder="si no está en la lista"></div>
   <div class="row"><label>Minuto (vacío = automático: ${minLabel()})</label><input style="width:90px" value="${esc(EV.min)}" oninput="EV.min=this.value" placeholder="${minLabel()}">
   ${EV.type==='goal'?`<label><input type="checkbox" ${EV.pen?'checked':''} onchange="EV.pen=this.checked"> Penal</label><label><input type="checkbox" ${EV.own?'checked':''} onchange="EV.own=this.checked"> Autogol</label>`:''}</div>
-  <div class="row"><button class="g big" onclick="X.evAdd()">Registrar</button><button onclick="X.evCancel()">Cancelar</button></div></div>`;
+  <div class="row"><button class="g big" onclick="X.evAdd()">Registrar</button><button onclick="X.evCancel()">Cancelar</button></div>
+  ${DUP?`<div class="toast">⚠ Ya registraste algo igual hace unos segundos. ¿Fue un doble clic por error?<br><button class="y" onclick="X.evAdd(true)">Registrar igual</button> <button onclick="X.evCancel()">Cancelar</button></div>`:''}</div>`;
  }
  const log=S.events.length?[...S.events].reverse().map(e=>{
   const T=S[e.team],nm=pname(e.team,e.pi,e.free),nm2=e.type==='sub'?' → entra '+pname(e.team,e.pi2,''):'';
@@ -817,25 +902,26 @@ function liveTab(){
   </div><div class="mut" style="text-align:center;margin-top:8px">Los goles registrados suman solos. Los botones + / − sirven para corregir.</div></div>
 
   <div class="card" style="margin-top:14px"><h3>Reloj y fases</h3>
-   <div class="row">${stLbl?`<button class="big ${c.running?'r':'g'}" onclick="X.start()">${stLbl} (Espacio)</button>`:''}${(nx!==null&&nx!==stp)?`<button class="big y" onclick="X.setPeriod(${nx})">➡ Pasar a: ${esc(P[nx].n)}</button>`:''}<button class="${S.bug?'on':''}" onclick="X.bug()">📺 Marcador en pantalla: ${S.bug?'visible':'oculto'}</button></div>
+   <div class="row">${stLbl?`<button class="big ${armed('kickoff')?'arm':(c.running?'r':'g')}" onclick="X.start()">${stLbl} (Espacio)</button>`:''}${(nx!==null&&nx!==stp)?`<button class="big y" onclick="X.safe('per:${nx}',()=>X.setPeriod(${nx}))">➡ Pasar a: ${esc(P[nx].n)}</button>`:''}<button class="${S.bug?'on':''}" onclick="X.bug()">📺 Marcador en pantalla: ${S.bug?'visible':'oculto'}</button></div>
    <div class="row">${hasClk?'<button onclick="X.resetClock()">↺ Reiniciar reloj a 00:00</button>':''}${UNDOCLK?'<button class="y" onclick="X.undoClock()">↩ Deshacer último cambio del reloj</button>':''}<span class="mut">¿Te equivocaste al iniciar? Usa Parar, Reiniciar o Deshacer.</span></div>
    <div class="row"><button onclick="X.adjClock(-60)">−1 min</button><button onclick="X.adjClock(-1)">−1 s</button><button onclick="X.adjClock(1)">+1 s</button><button onclick="X.adjClock(60)">+1 min</button>
    <label>Poner tiempo</label><input id="setclk" style="width:80px" placeholder="23:15"><button onclick="X.setClock(document.getElementById('setclk').value)">Aplicar</button></div>
-   <div class="row"><label>Tiempo añadido</label><button onclick="X.added(-1)">−</button><b style="font-size:20px">+${c.added}'</b><button onclick="X.added(1)">+</button><button onclick="X.addedFlash()">📣 Anunciar en pantalla</button></div>
-   <div class="row"><label>Ir directo a</label>${P.map((p,i)=>`<button class="sm ${i===c.period?'on':''}${i===nx?' next':''}" onclick="X.setPeriod(${i})">${p.l}</button>`).join('')}</div>
+   <div class="row"><label>Tiempo añadido</label><button onclick="X.added(-1)">−</button><b style="font-size:20px">+${c.added}'</b><button onclick="X.added(1)">+</button><button onclick="X.safe('added',()=>X.addedFlash())">📣 Anunciar en pantalla</button></div>
+   <div class="row"><label>Ir directo a</label>${P.map((p,i)=>`<button class="sm ${i===c.period?'on':''}${i===nx?' next':''}" onclick="X.safe('per:${i}',()=>X.setPeriod(${i}))">${p.l}</button>`).join('')}</div>
   </div>
 
   <div class="card" style="margin-top:14px"><h3>Pausas</h3>
    <div class="row"><label>Minutos</label><input type="number" min="1" max="30" value="${BRKMIN}" style="width:70px" oninput="X.brkDur(this.value)">
-   <button class="b" onclick="X.brkStart('PAUSA DE HIDRATACIÓN',BRKMIN)">💧 Hidratación</button>
-   <button onclick="X.brkStart('DESCANSO',BRKMIN)">Descanso</button>
-   <button onclick="X.brkStart('ATENCIÓN MÉDICA',BRKMIN)">Atención médica</button></div>
+   <button class="b" onclick="X.safe('brk:h',()=>X.brkStart('PAUSA DE HIDRATACIÓN',BRKMIN))">💧 Hidratación</button>
+   <button onclick="X.safe('brk:d',()=>X.brkStart('DESCANSO',BRKMIN))">Descanso</button>
+   <button onclick="X.safe('brk:m',()=>X.brkStart('ATENCIÓN MÉDICA',BRKMIN))">Atención médica</button></div>
    ${S.brk.on?`<div class="row"><b>${esc(S.brk.label)}</b> <span id="pbrk" class="clkbig" style="font-size:30px">${fmt(brkRem(),true)}</span><button onclick="X.brkToggle()">${S.brk.running?'Pausar':'Seguir'}</button><button class="r" onclick="X.brkHide()">Ocultar</button></div>`:'<div class="mut">Al iniciar una pausa, el reloj de juego se detiene solo. Acuérdate de reanudarlo después.</div>'}
   </div>
 
   <div class="card" style="margin-top:14px"><h3>Gráficos en pantalla</h3>${sceneBtns(['stats','sum','lineAB','spons','pens'])}</div>
  </div>
  <div>
+  ${BLK?`<div class="toast">⛔ <b>No se puede registrar: ${EVN[BLK.type]}</b><br>${esc(BLK.reason)}<br><button onclick="X.blkClose()">Entendido</button> <button class="y" onclick="X.blkForce()">Registrar de todos modos</button></div>`:''}
   <div class="card"><h3>Eventos rápidos</h3>${quick('A')}${quick('B')}</div>
   ${form}
   <div class="card" style="margin-top:14px"><h3>Historial</h3><div class="log">${log}</div></div>
@@ -871,20 +957,22 @@ function gfxTab(){
   <div class="row"><button class="${S.bug?'on':''}" onclick="X.bug()">${S.bug?'Marcador visible':'Marcador oculto'}</button>
    <label>Posición</label><select data-p="ui.pos">${[['tl','Arriba izquierda'],['tc','Arriba centro'],['tr','Arriba derecha'],['bl','Abajo izquierda'],['bc','Abajo centro'],['br','Abajo derecha']].map(o=>`<option value="${o[0]}" ${S.ui.pos===o[0]?'selected':''}>${o[1]}</option>`).join('')}</select></div>
   <div class="row"><label>Tamaño ${S.ui.scale}%</label><input type="range" min="50" max="140" step="5" data-p="ui.scale" value="${S.ui.scale}" oninput="this.previousElementSibling.textContent='Tamaño '+this.value+'%'"></div>
+  <div class="row"><label>Estilo de gráficos</label><select data-p="ui.theme"><option value="ucl" ${S.ui.theme!=='classic'?'selected':''}>Noche de copa europea (estilo Champions)</option><option value="classic" ${S.ui.theme==='classic'?'selected':''}>Clásico</option></select></div>
+  <div class="row"><label><input type="checkbox" data-p="ui.safe" ${S.ui.safe!==false?'checked':''}> 🛡 Modo seguro: pedir doble clic antes de sacar algo al aire</label></div>
   <div class="row"><label><input type="checkbox" data-p="ui.scorers" ${S.ui.scorers!==false?'checked':''}> Mostrar goleadores bajo el marcador</label></div>
   <div class="row"><label><input type="checkbox" data-p="auto" ${S.auto?'checked':''}> Mostrar banner automático al registrar gol, tarjeta o cambio</label></div>
   <div class="row"><label><input type="checkbox" data-p="fx" ${S.fx!==false?'checked':''}> Efectos de celebración (confeti y destellos)</label><button class="sm" onclick="X.testGoal()">Probar gol</button></div>
   <div class="row"><button class="r" onclick="X.hideFlash()">Ocultar banner ahora</button></div></div>
   <div class="card"><h3>Anuncios rápidos</h3><div class="row">
-  <button onclick="X.quick('REVISIÓN VAR','Revisión en curso')">VAR revisando</button>
-  <button onclick="X.quick('GOL ANULADO','Decisión del árbitro')">Gol anulado</button>
-  <button onclick="X.quick('PENAL','Penal señalado')">Penal</button>
-  <button onclick="X.quick('LESIÓN','Atención médica en el campo')">Lesión</button></div>
+  <button onclick="X.safe('ann:var',()=>X.quick('REVISIÓN VAR','Revisión en curso'))">VAR revisando</button>
+  <button onclick="X.safe('ann:anu',()=>X.quick('GOL ANULADO','Decisión del árbitro'))">Gol anulado</button>
+  <button onclick="X.safe('ann:pen',()=>X.quick('PENAL','Penal señalado'))">Penal</button>
+  <button onclick="X.safe('ann:les',()=>X.quick('LESIÓN','Atención médica en el campo'))">Lesión</button></div>
   <h3 style="margin-top:16px">Banner personalizado</h3>
   <div class="row"><label style="width:60px">Título</label>${inp('cust.t',S.cust.t,'style="flex:1"')}</div>
   <div class="row"><label style="width:60px">Línea 1</label>${inp('cust.l1',S.cust.l1,'style="flex:1"')}</div>
   <div class="row"><label style="width:60px">Línea 2</label>${inp('cust.l2',S.cust.l2,'style="flex:1"')}</div>
-  <div class="row"><button class="b" onclick="X.custFlash()">Lanzar banner</button></div></div>
+  <div class="row"><button class="b" onclick="X.safe('cust',()=>X.custFlash())">Lanzar banner</button></div></div>
   <div class="card"><h3>Cinta de texto inferior</h3><div class="row"><label><input type="checkbox" data-p="ticker.on" ${S.ticker.on?'checked':''}> Mostrar</label></div>
   <div class="row">${inp('ticker.text',S.ticker.text,'class="w" placeholder="Ej.: Gracias a nuestros auspiciadores"')}</div></div></div>`;
 }
@@ -893,7 +981,7 @@ function pensTab(){
  const blk=t=>{const a=S.pens[t];return `<div class="card"><div class="tm" style="background:${S[t].c1};color:${S[t].c2}">${esc(S[t].name)} — ${pcount(a)}</div>
   <div class="row" style="margin:12px 0">${Array.from({length:n},(_,i)=>`<span class="pk ${a[i]||''}">${a[i]==='g'?'✓':a[i]==='m'?'✕':a[i]==='s'?'🧤':i+1}</span>`).join('')}</div>
   <div class="row"><button class="g" onclick="X.pk('${t}','g')">⚽ Gol</button><button class="r" onclick="X.pk('${t}','m')">✕ Fallo</button><button class="b" onclick="X.pk('${t}','s')">🧤 Atajado</button><button onclick="X.pkUndo('${t}')">Deshacer</button></div></div>`;};
- return `<div class="card" style="margin-bottom:14px"><div class="row"><button class="big g" onclick="X.pensStart()">Iniciar tanda de penales</button><button onclick="X.scene('pens')" class="${S.scene==='pens'?'on':''}">Mostrar / ocultar gráfico</button><button onclick="X.pensClose()">Cerrar tanda</button><button class="r" onclick="X.pensReset()">Borrar tanda</button>
+ return `<div class="card" style="margin-bottom:14px"><div class="row"><button class="big g" onclick="X.pensStart()">Iniciar tanda de penales</button><button onclick="X.sceneSafe('pens')" class="${S.scene==='pens'?'on':''}">Mostrar / ocultar gráfico</button><button onclick="X.pensClose()">Cerrar tanda</button><button class="r" onclick="X.pensReset()">Borrar tanda</button>
  <label>Patea primero</label><select data-p="pens.first"><option value="A" ${S.pens.first==='A'?'selected':''}>${esc(S.A.name)}</option><option value="B" ${S.pens.first==='B'?'selected':''}>${esc(S.B.name)}</option></select></div>
  ${w?`<div style="font-size:20px;font-weight:800;color:var(--acc);margin-top:8px">🏆 Gana ${esc(S[w].name)}</div>`:''}</div>
  <div class="grid">${blk('A')}${blk('B')}</div>`;
@@ -904,7 +992,7 @@ function statsTab(){
  <div class="row"><span id="stposv" class="big" style="font-size:28px">${S.stats.pos}% - ${100-S.stats.pos}%</span></div>
  <input type="range" min="0" max="100" value="${S.stats.pos}" style="width:100%" oninput="X.stPos(this.value)">
  <div class="mut" style="margin:6px 0">Izquierda: ${esc(S.A.short||S.A.name)} · Derecha: ${esc(S.B.short||S.B.name)}. Goles y tarjetas salen solos de los eventos.</div>
- <div class="row"><button class="${S.scene==='stats'?'on':''}" onclick="X.scene('stats')">📊 Mostrar / ocultar estadísticas</button></div></div>
+ <div class="row"><button class="${S.scene==='stats'?'on':''}" onclick="X.sceneSafe('stats')">📊 Mostrar / ocultar estadísticas</button></div></div>
  ${['A','B'].map(t=>`<div class="card"><div class="tm" style="background:${S[t].c1};color:${S[t].c2}">${esc(S[t].name)}</div>
  ${rows.map(r=>`<div class="row"><span style="width:150px">${r[1]}</span><button onclick="X.st('${t}','${r[0]}',-1)">−</button><b style="font-size:20px;min-width:34px;text-align:center">${S.stats[t][r[0]]}</b><button onclick="X.st('${t}','${r[0]}',1)">+</button></div>`).join('')}</div>`).join('')}</div>`;
 }
@@ -914,7 +1002,7 @@ function sponsTab(){
  <div class="row"><button class="${sp.on?'on':''}" onclick="S.sp.on=!S.sp.on;commit();render()">${sp.on?'Rotación activada':'Rotación apagada'}</button>
  <label>Cambia cada</label><input type="number" min="2" max="60" style="width:70px" data-p="sp.sec" value="${sp.sec}"><label>seg</label>
  <label>Posición</label><select data-p="sp.pos">${[['br','Abajo derecha'],['bl','Abajo izquierda'],['tr','Arriba derecha'],['tl','Arriba izquierda']].map(o=>`<option value="${o[0]}" ${sp.pos===o[0]?'selected':''}>${o[1]}</option>`).join('')}</select></div>
- <div class="row"><button class="${S.scene==='spons'?'on':''}" onclick="X.scene('spons')">🤝 Mostrar pantalla de auspiciadores</button></div>
+ <div class="row"><button class="${S.scene==='spons'?'on':''}" onclick="X.sceneSafe('spons')">🤝 Mostrar pantalla de auspiciadores</button></div>
  <div class="help">Cada auspiciador acepta una imagen subida desde tu computadora o el enlace de la imagen. Los logos PNG con fondo transparente se ven mejor. Si el marcador está arriba a la izquierda, deja los auspiciadores abajo.</div></div>
  ${sp.items.map((it,i)=>`<div class="card"><h3>Auspiciador ${i+1}</h3><div class="row"><label style="width:60px">Nombre</label>${inp('sp.items.'+i+'.name',it.name,'style="flex:1"')}</div>${imgField('sp.items.'+i+'.img',400)}</div>`).join('')}</div>`;
 }
@@ -937,12 +1025,12 @@ function prevTab(){
  const rows=chk.map(c=>`<div class="ev"><span>${c[0]?'✅':'⚠️'} ${esc(c[1])}</span>${c[0]?'':`<button class="sm" onclick="X.tab('${c[2]}')">Completar</button>`}</div>`).join('');
  const seq=[['cd','Cuenta regresiva de inicio'],['intro','Presentación del partido'],['lineA','Alineación del equipo A (lista)'],['lineB','Alineación del equipo B (lista)'],['pitchA','Alineación táctica A (en la cancha)'],['pitchB','Alineación táctica B (en la cancha)'],['refs','Terna arbitral'],['spons','Auspiciadores']];
  const cdCard=`<div class="card"><h3>Cuenta regresiva de inicio</h3>
- <div class="row"><label>Minutos</label><input type="number" min="1" max="60" style="width:70px" data-p="cd.min" value="${esc(S.cd.min)}"><button class="g" onclick="X.cdStart()">▶ Iniciar y mostrar</button><button onclick="X.cdToggle()">${S.cd.running?'⏸ Pausar':'▶ Seguir'}</button><button onclick="X.cdReset()">↺ Reiniciar</button></div>
+ <div class="row"><label>Minutos</label><input type="number" min="1" max="60" style="width:70px" data-p="cd.min" value="${esc(S.cd.min)}"><button class="g" onclick="X.safe('cdgo',()=>X.cdStart())">▶ Iniciar y mostrar</button><button onclick="X.cdToggle()">${S.cd.running?'⏸ Pausar':'▶ Seguir'}</button><button onclick="X.cdReset()">↺ Reiniciar</button></div>
  <div class="row"><b id="pcd" class="clkbig" style="font-size:36px">${(S.cd.running||S.cd.base>0)?fmt(cdRem(),true):fmt((+S.cd.min||5)*60000,true)}</b><span class="mut">Se ve en pantalla con los escudos. Al llegar a cero dice «¡YA!».</span></div>
  <div class="mut">Las alineaciones tácticas dibujan a los titulares en la cancha según el esquema (ej. 4-4-2). Ordena la lista así: primero el portero, luego defensas, volantes y delanteros.</div></div>`;
  return `<div class="grid"><div class="card"><h3>Lista de verificación</h3>${rows}</div>
  <div class="card steps"><h3>Secuencia de gráficos</h3>
- ${seq.map((s,i)=>`<div class="ev"><b>${i+1}</b><span>${s[1]}</span><button class="${S.scene===s[0]?'on':''}" onclick="X.scene('${s[0]}')">${S.scene===s[0]?'Quitar':'Mostrar'}</button></div>`).join('')}
+ ${seq.map((s,i)=>`<div class="ev"><b>${i+1}</b><span>${s[1]}</span><button class="${S.scene===s[0]?'on':''}" onclick="X.sceneSafe('${s[0]}')">${S.scene===s[0]?'Quitar':'Mostrar'}</button></div>`).join('')}
  <div class="row" style="margin-top:12px"><button class="big g" onclick="X.toLive()">Quitar gráficos y empezar ➡ En vivo</button></div>
  <div class="mut">También puedes mostrar las dos alineaciones juntas:</div>${sceneBtns(['lineAB'])}</div>${cdCard}</div>`;
 }
@@ -950,11 +1038,11 @@ function endTab(){
  const d=derive(),end=S.clock.period===9;
  const gl=t=>d.goals[t].map(x=>`<div>⚽ ${esc(x.name||'Gol')}${x.own?' (a.g.)':''}${x.pen?' (p)':''} <span class="mut">${esc(x.min)}</span></div>`).join('')||'<div class="mut">—</div>';
  const steps=[
-  ['Marcar el partido como terminado',`<button class="${end?'on':''}" onclick="X.setPeriod(9)">${end?'✔ Final':'Poner FINAL'}</button>`],
-  ['Mostrar resultado final',`<button class="${S.scene==='sum'?'on':''}" onclick="X.scene('sum')">📋 Resumen / Final</button>`],
-  ['Mostrar estadísticas',`<button class="${S.scene==='stats'?'on':''}" onclick="X.scene('stats')">📊 Estadísticas</button>`],
-  ['Penales (si hubo tanda)',`<button class="${S.scene==='pens'?'on':''}" onclick="X.scene('pens')">🥅 Penales</button>`],
-  ['Agradecer a los auspiciadores',`<button class="${S.scene==='spons'?'on':''}" onclick="X.scene('spons')">🤝 Auspiciadores</button>`]
+  ['Marcar el partido como terminado',`<button class="${end?'on':''}" onclick="X.safe('per:9',()=>X.setPeriod(9))">${end?'✔ Final':'Poner FINAL'}</button>`],
+  ['Mostrar resultado final',`<button class="${S.scene==='sum'?'on':''}" onclick="X.sceneSafe('sum')">📋 Resumen / Final</button>`],
+  ['Mostrar estadísticas',`<button class="${S.scene==='stats'?'on':''}" onclick="X.sceneSafe('stats')">📊 Estadísticas</button>`],
+  ['Penales (si hubo tanda)',`<button class="${S.scene==='pens'?'on':''}" onclick="X.sceneSafe('pens')">🥅 Penales</button>`],
+  ['Agradecer a los auspiciadores',`<button class="${S.scene==='spons'?'on':''}" onclick="X.sceneSafe('spons')">🤝 Auspiciadores</button>`]
  ];
  return `<div class="grid"><div class="card"><h3>Resultado</h3>
  <div class="scorebox"><div class="tm" style="background:${S.A.c1};color:${S.A.c2}">${esc(S.A.name)}</div><div class="big">${d.sc.A} - ${d.sc.B}</div><div class="tm" style="background:${S.B.c1};color:${S.B.c2}">${esc(S.B.name)}</div></div>
@@ -1012,7 +1100,8 @@ function render(){
  const y=window.scrollY;
  document.getElementById('app').innerHTML=`<header class="top"><h1>⚽ Marcador</h1>
  <div class="grps">${GROUPS.map(x=>`<button class="grp ${x===g?'on':''}${x.n?'':' alt'}" onclick="X.tab('${x.tabs[0][0]}')">${x.n?`<span class="num">${x.n}</span>`:''}${x.ic} ${x.l}</button>`).join('')}</div>
- <nav class="sub">${g.tabs.length>1?g.tabs.map(t=>`<button class="tab ${TAB===t[0]?'on':''}" onclick="X.tab('${t[0]}')">${t[1]}</button>`).join(''):`<b style="color:var(--acc)">${g.tabs[0][1]}</b>`}<span class="hint">${g.hint}</span></nav></header><main>${body}</main>`;
+ <nav class="sub">${g.tabs.length>1?g.tabs.map(t=>`<button class="tab ${TAB===t[0]?'on':''}" onclick="X.tab('${t[0]}')">${t[1]}</button>`).join(''):`<b style="color:var(--acc)">${g.tabs[0][1]}</b>`}<span class="hint">${g.hint}</span></nav></header><main>${TOAST?`<div class="toast">⛔ ${esc(TOAST)}</div>`:''}${body}</main>`;
+ if(ARM&&armed(ARM.k)){document.querySelectorAll('#app button').forEach(b=>{const o=b.getAttribute('onclick')||'';if(o.includes("'"+ARM.k+"'")&&!b.classList.contains('arm')){b.classList.add('arm');b.textContent='⚠ ¿Seguro? Clic otra vez';}});}
  const pvb=document.getElementById('pv');if(pvb)pvb.style.display=TAB==='view'?'none':'';
  if(TAB==='view'){const f=document.getElementById('bigf');f.addEventListener('load',pvPost);f.srcdoc=pvSrcdoc();bigFit();}
  window.scrollTo(0,y);
