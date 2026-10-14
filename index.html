@@ -549,19 +549,23 @@ function setPath(o,path,v){const k=path.split('.');for(let i=0;i<k.length-1;i++)
 
 X.tab=t=>{TAB=t;render();window.scrollTo(0,0);};
 X.toLive=()=>{S.scene='';X.setPeriod(1);X.tab('live');};
-X.setPeriod=i=>{const c=S.clock;c.period=i;c.base=0;c.running=false;c.added=0;if(P[i].k==='pen'){S.pens.on=true;S.scene='pens';}commit();render();};
+X.setPeriod=i=>{snapClock();const c=S.clock;c.period=i;c.base=0;c.running=false;c.added=0;if(P[i].k==='pen'){S.pens.on=true;S.scene='pens';}commit();render();};
+let UNDOCLK=null,SNAPBUSY=false;
+function snapClock(){if(SNAPBUSY)return;UNDOCLK={c:JSON.parse(JSON.stringify(S.clock))};}
+X.undoClock=()=>{if(!UNDOCLK)return;S.clock=UNDOCLK.c;UNDOCLK=null;commit();render();};
+X.resetClock=()=>{const c=S.clock;if(P[c.period].s===undefined)return;snapClock();c.base=0;c.running=false;commit();render();};
 X.start=()=>{
  const c=S.clock;if(P[c.period].s!==undefined){X.toggle();return;}
  const d=derive(),t=c.period===0?1:c.period===2?3:c.period===6?7:(c.period===4&&d.sc.A===d.sc.B)?5:null;
- if(t===null)return;X.setPeriod(t);X.toggle();
+ if(t===null)return;snapClock();SNAPBUSY=true;try{X.setPeriod(t);X.toggle();}finally{SNAPBUSY=false;}
 };
-X.toggle=()=>{const c=S.clock;if(P[c.period].s===undefined)return;if(c.running){c.base=elapsed();c.running=false;}else{c.t0=Date.now();c.running=true;}commit();render();};
-X.adjClock=sec=>{const c=S.clock;if(P[c.period].s===undefined)return;c.base=Math.max(0,elapsed()+sec*1000);if(c.running)c.t0=Date.now();commit();};
+X.toggle=()=>{const c=S.clock;if(P[c.period].s===undefined)return;snapClock();if(c.running){c.base=elapsed();c.running=false;}else{c.t0=Date.now();c.running=true;}commit();render();};
+X.adjClock=sec=>{const c=S.clock;if(P[c.period].s===undefined)return;snapClock();c.base=Math.max(0,elapsed()+sec*1000);if(c.running)c.t0=Date.now();commit();};
 X.setClock=txt=>{
  const p=P[S.clock.period];if(p.s===undefined)return;
  const m=String(txt).trim().match(/^(\d{1,3})(?::(\d{1,2}))?$/);if(!m){alert('Escribe el tiempo así: 23:15');return;}
  const ms=((+m[1])*60+(+(m[2]||0)))*1000-p.s*60000;
- S.clock.base=Math.max(0,ms);if(S.clock.running)S.clock.t0=Date.now();commit();render();
+ snapClock();S.clock.base=Math.max(0,ms);if(S.clock.running)S.clock.t0=Date.now();commit();render();
 };
 X.added=d=>{S.clock.added=Math.max(0,S.clock.added+d);commit();render();};
 X.addedFlash=()=>{if(S.clock.added>0){flash('added',null,'TIEMPO AÑADIDO','+'+S.clock.added+' minutos','',6000);commit();}};
@@ -705,7 +709,7 @@ function sceneBtns(keys){return `<div class="row"><button class="${S.bug?'on':''
 
 function liveTab(){
  const d=derive(),c=S.clock,ci=clockInfo(),nx=NEXTP(c.period),hasClk=P[c.period].s!==undefined,stp=c.period===0?1:c.period===2?3:c.period===6?7:(c.period===4&&d.sc.A===d.sc.B)?5:null;
- const stLbl=hasClk?(c.running?'⏸ Pausar':(elapsed()>0?'▶ Reanudar':'▶ Iniciar '+P[c.period].l)):(stp?'▶ Iniciar '+P[stp].l:'');
+ const stLbl=hasClk?(c.running?'⏸ Parar / Pausar':(elapsed()>0?'▶ Reanudar':'▶ Iniciar '+P[c.period].l)):(stp?'▶ Iniciar '+P[stp].l:'');
  const quick=t=>`<div class="row"><span class="tm" style="background:${S[t].c1};color:${S[t].c2};padding:6px 12px;font-size:14px">${esc(S[t].short||S[t].name)}</span>
   <button onclick="X.ev('goal','${t}')">⚽ Gol</button><button class="y" onclick="X.ev('yellow','${t}')">Amarilla</button><button class="r" onclick="X.ev('red','${t}')">Roja</button><button class="b" onclick="X.ev('sub','${t}')">🔄 Cambio</button></div>`;
  let form='';
@@ -735,6 +739,7 @@ function liveTab(){
 
   <div class="card" style="margin-top:14px"><h3>Reloj y fases</h3>
    <div class="row">${stLbl?`<button class="big ${c.running?'r':'g'}" onclick="X.start()">${stLbl} (Espacio)</button>`:''}${(nx!==null&&nx!==stp)?`<button class="big y" onclick="X.setPeriod(${nx})">➡ Pasar a: ${esc(P[nx].n)}</button>`:''}<button class="${S.bug?'on':''}" onclick="X.bug()">📺 Marcador en pantalla: ${S.bug?'visible':'oculto'}</button></div>
+   <div class="row">${hasClk?'<button onclick="X.resetClock()">↺ Reiniciar reloj a 00:00</button>':''}${UNDOCLK?'<button class="y" onclick="X.undoClock()">↩ Deshacer último cambio del reloj</button>':''}<span class="mut">¿Te equivocaste al iniciar? Usa Parar, Reiniciar o Deshacer.</span></div>
    <div class="row"><button onclick="X.adjClock(-60)">−1 min</button><button onclick="X.adjClock(-1)">−1 s</button><button onclick="X.adjClock(1)">+1 s</button><button onclick="X.adjClock(60)">+1 min</button>
    <label>Poner tiempo</label><input id="setclk" style="width:80px" placeholder="23:15"><button onclick="X.setClock(document.getElementById('setclk').value)">Aplicar</button></div>
    <div class="row"><label>Tiempo añadido</label><button onclick="X.added(-1)">−</button><b style="font-size:20px">+${c.added}'</b><button onclick="X.added(1)">+</button><button onclick="X.addedFlash()">📣 Anunciar en pantalla</button></div>
