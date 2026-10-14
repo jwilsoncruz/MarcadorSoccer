@@ -225,19 +225,25 @@ button.next{outline:2px solid var(--acc);outline-offset:1px}
 #pv[data-bg="2"] #pvv{background:linear-gradient(#3f9446,#2a6b30)}
 #pvf{width:1920px;height:1080px;border:0;transform-origin:0 0;pointer-events:none;background:transparent;position:absolute;left:0;top:0}
 #pv.min #pvv{display:none}
+#bigscr{position:relative;width:100%;max-width:1100px;aspect-ratio:16/9;overflow:hidden;border:1px solid var(--line);border-radius:8px;background:#000}
+#bigscr[data-bg="0"]{background:repeating-conic-gradient(#2a303a 0 25%,#1f242c 0 50%) 0 0/24px 24px}
+#bigscr[data-bg="1"]{background:#00b140}
+#bigscr[data-bg="2"]{background:linear-gradient(#3f9446,#2a6b30)}
+#bigscr:fullscreen{max-width:none;width:100vw;height:100vh;aspect-ratio:auto;border:0;border-radius:0}
+#bigf{position:absolute;width:1920px;height:1080px;border:0;transform-origin:0 0;pointer-events:none;background:transparent}
 @media (prefers-reduced-motion:reduce){#stage *{animation:none!important}}
 </style>
 </head>
 <body>
 <div id="app"></div>
-<script>
+<script id="mainjs">
 /* =========================================================
    MARCADOR DE FÚTBOL — un solo archivo, dos modos:
    - Panel de control (abrir normal)
    - Pantalla para OBS (abrir con #pantalla al final de la dirección)
    ========================================================= */
 const KEY='mfutbol_v1', RKEY='mfutbol_rev';
-const DISP=/^#(pantalla|verde)/.test(location.hash);
+const DISP=!!window.__DISP||/^#(pantalla|verde)/.test(location.hash);
 addEventListener('hashchange',()=>location.reload());
 
 const P=[
@@ -280,7 +286,7 @@ let bc=null;try{bc=new BroadcastChannel('mfutbol');}catch(e){}
 function commit(){
  S.rev=(S.rev||0)+1;
  try{localStorage.setItem(KEY,JSON.stringify(S));localStorage.setItem(RKEY,S.rev+':'+Date.now());}
- catch(e){alert('No se pudo guardar. Probablemente un escudo es muy pesado: usa una imagen más pequeña.');}
+ catch(e){if(!window.__warned){window.__warned=1;alert('No se pudo guardar en el navegador (¿escudo muy pesado o archivo abierto desde una vista previa?). El marcador seguirá funcionando, pero no se recordará al cerrar.');}}
  if(bc)try{bc.postMessage(1);}catch(e){}
  if(!DISP)pvPost();
 }
@@ -522,14 +528,14 @@ function tickDisplay(){
  const b=document.getElementById('bt');if(b)b.textContent=fmt(brkRem(),true);
 }
 function fit(){const s=Math.min(innerWidth/1920,innerHeight/1080);document.getElementById('stage').style.transform='scale('+s+')';}
-function sync(){const r=localStorage.getItem(RKEY);if(r!==lastR){lastR=r;S=load();renderDisplay();}}
+function sync(){try{const r=localStorage.getItem(RKEY);if(r!==lastR){lastR=r;S=load();renderDisplay();}}catch(e){}}
 function initDisplay(){
- document.body.className='disp'+(location.hash==='#verde'?' verde':'');
+ document.body.className='disp'+((location.hash==='#verde'||window.__GREEN)?' verde':'');
  document.getElementById('app').innerHTML='<div id="stage"><div id="spons"></div><div id="scene"></div><div id="bugwrap"></div><div id="burst"></div><canvas id="fx" width="1920" height="1080" style="position:absolute;left:0;top:0;pointer-events:none"></canvas><div id="flash"></div><div id="brk"></div><div id="tick"></div></div>';
  fit();addEventListener('resize',fit);
  sync();renderDisplay();
  addEventListener('storage',sync);
- addEventListener('message',e=>{const m=e.data;if(m&&m.mf&&m.state&&e.source===window.parent){S=merge(def(),m.state);renderDisplay();}});
+ addEventListener('message',e=>{const m=e.data;if(m&&m.mf&&m.state&&(e.source===window.parent||e.source===window.opener)){S=merge(def(),m.state);renderDisplay();}});
  if(bc)bc.onmessage=sync;
  setInterval(sync,250);setInterval(tickDisplay,100);
 }
@@ -656,7 +662,23 @@ X.resetMatch=()=>{
 X.resetAll=()=>{if(confirm('¿Borrar TODO (equipos, escudos, jugadores, partido)?')){S=def();commit();render();}};
 X.export=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(S)],{type:'application/json'}));a.download='marcador-respaldo.json';a.click();};
 X.import=inp=>{const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{S=merge(def(),JSON.parse(r.result));commit();render();}catch(e){alert('Archivo no válido');}};r.readAsText(f);};
-X.open=m=>{window.open(location.href.split('#')[0]+'#'+m,'_blank','width=960,height=540');};
+X.open=m=>{
+ let w=null;try{w=window.open('','_blank','width=1000,height=600');}catch(e){}
+ if(!w){alert('El navegador no permitió abrir la ventana nueva.\n\nPermite las ventanas emergentes para este archivo, o usa el botón «Pantalla completa» en Pantalla → Ver pantalla.');return;}
+ try{
+  w.document.open();w.document.write(pvSrcdoc(m==='verde'));w.document.close();
+  PVW.push(w);setTimeout(pvPost,500);setTimeout(pvPost,1500);
+ }catch(e){try{w.location.href=location.href.split('#')[0]+'#'+m;}catch(x){}}
+};
+X.openScreen=X.open;
+X.bigBg=()=>{PV.bg=(PV.bg+1)%3;pvSave();const b=document.getElementById('bigscr');if(b)b.dataset.bg=PV.bg;pvApply();};
+X.fullScreen=()=>{const b=document.getElementById('bigscr');if(!b)return;try{(b.requestFullscreen||b.webkitRequestFullscreen).call(b);}catch(e){alert('Tu navegador no permitió la pantalla completa. Usa «Abrir en ventana nueva».');}};
+function bigFit(){
+ const c=document.getElementById('bigscr'),f=document.getElementById('bigf');if(!c||!f)return;
+ const s=Math.min(c.clientWidth/1920,c.clientHeight/1080);
+ f.style.transform='scale('+s+')';f.style.left=((c.clientWidth-1920*s)/2)+'px';f.style.top=((c.clientHeight-1080*s)/2)+'px';
+}
+addEventListener('resize',bigFit);document.addEventListener('fullscreenchange',()=>setTimeout(bigFit,50));
 
 /* campos con data-p se guardan solos */
 document.addEventListener('input',e=>{
@@ -800,6 +822,12 @@ function sponsTab(){
  <div class="help">Cada auspiciador acepta una imagen subida desde tu computadora o el enlace de la imagen. Los logos PNG con fondo transparente se ven mejor. Si el marcador está arriba a la izquierda, deja los auspiciadores abajo.</div></div>
  ${sp.items.map((it,i)=>`<div class="card"><h3>Auspiciador ${i+1}</h3><div class="row"><label style="width:60px">Nombre</label>${inp('sp.items.'+i+'.name',it.name,'style="flex:1"')}</div>${imgField('sp.items.'+i+'.img',400)}</div>`).join('')}</div>`;
 }
+function viewTab(){
+ return `<div class="card"><h3>Pantalla (lo que verá el público en OBS)</h3>
+ <div id="bigscr" data-bg="${PV.bg}"><iframe id="bigf" class="pvframe" title="Pantalla"></iframe></div>
+ <div class="row" style="margin-top:10px"><button class="b" onclick="X.openScreen('pantalla')">🪟 Abrir en ventana nueva</button><button onclick="X.openScreen('verde')">🟩 Ventana con fondo verde</button><button onclick="X.fullScreen()">⛶ Pantalla completa</button><button onclick="X.bigBg()">🎨 Cambiar fondo</button></div>
+ <div class="mut">Es la misma pantalla de la vista previa, en grande. Todo lo que hagas en el panel se ve aquí al instante. Para OBS usa la dirección de Ajustes / OBS.</div></div>`;
+}
 function prevTab(){
  const named=t=>S[t].players.filter(p=>p.name.trim()).length;
  const chk=[
@@ -858,7 +886,7 @@ function libTab(){
 }
 function setTab(){
  const base=location.href.split('#')[0];
- return `<div class="grid"><div class="card"><h3>Cómo conectar con OBS</h3><div class="help">
+ return `<div class="grid"><div class="card"><h3>Cómo conectar con OBS</h3><div class="help"><b>Vista previa y Pantalla:</b> la vista previa flotante es una copia en pequeño de la <b>Pantalla</b>. La Pantalla de verdad (la que usa OBS) es la dirección que termina en <b>#pantalla</b>, y debes abrir este archivo desde tu carpeta (doble clic), no desde una vista previa del chat.<br><br>
  <b>1.</b> Guarda este archivo en una carpeta fija (ejemplo: <b>C:\\Marcador\\marcador-futbol.html</b>).<br>
  <b>2.</b> En OBS: <b>Fuentes → + → Navegador</b>. Marca <b>Archivo local no</b> y en <b>URL</b> pega la dirección de pantalla (abajo). Tamaño: <b>1920 × 1080</b>.<br>
  <b>3.</b> Para controlar desde OBS: menú <b>Docks → Docks de navegador personalizados</b>, nombre «Marcador», URL = la dirección del panel (abajo). Así el panel y la pantalla comparten datos.<br>
@@ -876,22 +904,29 @@ const GROUPS=[
  {n:2,ic:'🎬',l:'Previa',tabs:[['prev','Gráficos de previa']],hint:'Antes del pitazo: revisa la lista, muestra presentación, alineaciones y árbitros, y pasa a En vivo.'},
  {n:3,ic:'⚽',l:'En vivo',tabs:[['live','Partido'],['stats','Estadísticas'],['pens','Penales']],hint:'Durante el partido: reloj y eventos a la mano. Barra espaciadora = iniciar o pausar.'},
  {n:4,ic:'🏁',l:'Final',tabs:[['end','Cierre del partido']],hint:'Al terminar: resultado final, estadísticas, agradecimiento y guardado.'},
- {n:0,ic:'🖥',l:'Pantalla',tabs:[['gfx','Marcador y banners'],['set','Ajustes / OBS']],hint:'Cómo se ve la pantalla: marcador, banners, cinta de texto y conexión con OBS.'}
+ {n:0,ic:'🖥',l:'Pantalla',tabs:[['view','Ver pantalla'],['gfx','Marcador y banners'],['set','Ajustes / OBS']],hint:'Cómo se ve la pantalla: verla en grande, ajustar marcador y banners, y conectar con OBS.'}
 ];
 function render(){
  const g=GROUPS.find(x=>x.tabs.some(t=>t[0]===TAB))||GROUPS[2];
- const body={live:liveTab,teams:teamsTab,match:matchTab,gfx:gfxTab,pens:pensTab,stats:statsTab,spons:sponsTab,lib:libTab,prev:prevTab,end:endTab,set:setTab}[TAB]();
+ const body={live:liveTab,teams:teamsTab,match:matchTab,gfx:gfxTab,pens:pensTab,stats:statsTab,spons:sponsTab,lib:libTab,prev:prevTab,end:endTab,view:viewTab,set:setTab}[TAB]();
  const y=window.scrollY;
  document.getElementById('app').innerHTML=`<header class="top"><h1>⚽ Marcador</h1>
  <div class="grps">${GROUPS.map(x=>`<button class="grp ${x===g?'on':''}${x.n?'':' alt'}" onclick="X.tab('${x.tabs[0][0]}')">${x.n?`<span class="num">${x.n}</span>`:''}${x.ic} ${x.l}</button>`).join('')}</div>
  <nav class="sub">${g.tabs.length>1?g.tabs.map(t=>`<button class="tab ${TAB===t[0]?'on':''}" onclick="X.tab('${t[0]}')">${t[1]}</button>`).join(''):`<b style="color:var(--acc)">${g.tabs[0][1]}</b>`}<span class="hint">${g.hint}</span></nav></header><main>${body}</main>`;
+ const pvb=document.getElementById('pv');if(pvb)pvb.style.display=TAB==='view'?'none':'';
+ if(TAB==='view'){const f=document.getElementById('bigf');f.addEventListener('load',pvPost);f.srcdoc=pvSrcdoc();bigFit();}
  window.scrollTo(0,y);
 }
 const PVK='mfutbol_pv';
 let PV={x:null,y:null,w:420,min:innerWidth<900,bg:0};
 try{Object.assign(PV,JSON.parse(localStorage.getItem(PVK))||{});}catch(e){}
 function pvSave(){try{localStorage.setItem(PVK,JSON.stringify(PV));}catch(e){}}
-function pvPost(){const f=document.getElementById('pvf');if(f&&f.contentWindow){try{f.contentWindow.postMessage({mf:1,state:S},'*');}catch(e){}}}
+let PVW=[];
+function pvPost(){
+ PVW=PVW.filter(w=>w&&!w.closed);const msg={mf:1,state:S};
+ document.querySelectorAll('iframe.pvframe').forEach(f=>{try{f.contentWindow.postMessage(msg,'*');}catch(e){}});
+ PVW.forEach(w=>{try{w.postMessage(msg,'*');}catch(e){}});
+}
 function pvApply(){
  const b=document.getElementById('pv');if(!b)return;
  const w=Math.max(240,Math.min(PV.w,innerWidth-16)),h=Math.round(w*9/16);
@@ -904,10 +939,15 @@ function pvApply(){
  document.getElementById('pvf').style.transform='scale('+(w/1920)+')';
  const mb=b.querySelector('[data-a=min]');if(mb)mb.textContent=PV.min?'▢':'▁';
 }
+function pvSrcdoc(green){
+ const js=document.getElementById('mainjs').textContent;
+ return '<!DOCTYPE html><html lang="es"><head><meta charset="utf-8">'+document.head.innerHTML+'</head><body><div id="app"></div><script>window.__DISP=1;'+(green?'window.__GREEN=1;':'')+js+'<\/script></body></html>';
+}
 function pvInit(){
  const d=document.createElement('div');d.id='pv';
- d.innerHTML='<div id="pvh"><b>📺 Vista previa</b><span class="sp"></span><button class="sm" data-a="bg" title="Cambiar fondo">🎨</button><button class="sm" data-a="mn" title="Más pequeña">−</button><button class="sm" data-a="pl" title="Más grande">+</button><button class="sm" data-a="min" title="Minimizar / mostrar">▁</button></div><div id="pvv"><iframe id="pvf" title="Vista previa" src="'+location.href.split('#')[0]+'#pantalla"></iframe></div>';
+ d.innerHTML='<div id="pvh"><b>📺 Vista previa</b><span class="sp"></span><button class="sm" data-a="bg" title="Cambiar fondo">🎨</button><button class="sm" data-a="mn" title="Más pequeña">−</button><button class="sm" data-a="pl" title="Más grande">+</button><button class="sm" data-a="min" title="Minimizar / mostrar">▁</button></div><div id="pvv"><iframe id="pvf" class="pvframe" title="Vista previa"></iframe></div>';
  document.body.appendChild(d);
+ document.getElementById('pvf').srcdoc=pvSrcdoc();
  document.getElementById('pvf').addEventListener('load',pvPost);
  d.addEventListener('click',e=>{
   const a=e.target.dataset&&e.target.dataset.a;if(!a)return;
