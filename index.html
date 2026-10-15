@@ -252,6 +252,7 @@ kbd{font:11px monospace;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,
 .pp.off>*{opacity:.45}
 @keyframes ppin{from{opacity:0;transform:scale(0)}to{opacity:1;transform:none}}
 button.dis{opacity:.35;filter:grayscale(.6)}
+.toast.ok{background:#16452a;border-color:#2e9d5b;color:#d8ffe6}
 .toast{background:#5a1d1d;border:1px solid #d04545;border-radius:8px;padding:10px 14px;margin-bottom:12px;color:#ffd7d7;line-height:1.6}
 button.arm{background:var(--acc);color:#1b1500;border-color:var(--acc);animation:armp .6s ease-in-out infinite alternate}
 @keyframes armp{from{box-shadow:0 0 0 0 rgba(242,182,50,.7)}to{box-shadow:0 0 0 7px rgba(242,182,50,0)}}
@@ -354,8 +355,8 @@ const def=()=>({
  scene:'',bug:true,
  ticker:{on:false,text:''},
  cust:{t:'',l1:'',l2:''},
- flash:null,auto:true,fx:true,cd:{min:5,dur:300000,base:0,t0:0,running:false},
- ui:{pos:'tl',scale:100,scorers:true,safe:true,theme:'ucl'}
+ flash:null,auto:true,fx:true,sShow:0,cd:{min:5,dur:300000,base:0,t0:0,running:false,auto:false,fired:false},
+ ui:{pos:'tl',scale:100,scorers:true,safe:true,theme:'ucl',scorerMode:'timed',scorerSecs:12}
 });
 function merge(d,s){for(const k in s){if(s[k]&&typeof s[k]==='object'&&!Array.isArray(s[k])&&d[k]&&typeof d[k]==='object'&&!Array.isArray(d[k]))merge(d[k],s[k]);else d[k]=s[k];}return d;}
 function load(){try{const r=JSON.parse(localStorage.getItem(KEY));return r?merge(def(),r):def();}catch(e){return def();}}
@@ -404,7 +405,7 @@ function derive(){
   const t=e.team;
   if(e.type==='goal'){
    const st=e.own?other(t):t;sc[st]++;
-   goals[st].push({name:pname(t,e.pi,e.free),min:e.min,own:e.own,pen:e.pen});
+   goals[st].push({name:pname(t,e.pi,e.free),min:e.min,own:e.own,pen:e.pen,id:e.id});
    if(e.pi>=0&&!e.own)g(t,e.pi).g++;
   }else if(e.type==='yellow'){
    yel[t]++;if(e.pi>=0){const p=g(t,e.pi);p.y++;if(p.y>=2){p.r=true;red[t]++;}}
@@ -444,7 +445,7 @@ function autoFlash(e,prevYellows){
 /* =========================================================
    PANTALLA PARA OBS
    ========================================================= */
-let lastSceneKey=null,lastR=null,lastFlash=0,flashTimer=null,lastSc=null,bugEnter=false,fxRaf=0;const SIG={},POP={A:false,B:false};
+let lastVis='',lastSceneKey=null,lastR=null,lastFlash=0,flashTimer=null,lastSc=null,bugEnter=false,fxRaf=0;const SIG={},POP={A:false,B:false};
 function setHTML(id,sig,html){const el=document.getElementById(id);if(SIG[id]!==sig){SIG[id]=sig;el.innerHTML=html;}}
 
 function bugHTML(d){
@@ -459,9 +460,11 @@ function bugHTML(d){
  const ci=clockInfo(),p=P[S.clock.period];
  const tl=S.match.logo?`<div style="width:84px;height:70px;background:#0a0d12;display:flex;align-items:center;justify-content:center;margin-right:4px"><img src="${esc(S.match.logo)}" style="max-width:66px;max-height:58px;object-fit:contain"></div>`:'';
  const gc=t=>{
-  if(S.ui.scorers===false)return '';
-  const all=d.goals[t],g=all.slice(-3),n0=all.length-g.length;
-  return g.map((x,i)=>`<span class="gc${(POP[t]&&n0+i===all.length-1)?' new':''}">⚽ ${esc(shortN(x.name)||'Gol')}${x.own?' (a.g.)':''}${x.pen?' (p)':''} ${esc(x.min)}</span>`).join('');
+  const mode=scMode();if(mode==='off')return '';
+  const all=d.goals[t];let list=all.map((x,i)=>({x,i}));
+  if(mode==='timed'){const ms=(+S.ui.scorerSecs||12)*1000,now=Date.now(),man=(S.sShow||0)>now;list=list.filter(o=>man||now-o.x.id<ms);}
+  list=list.slice(-3);
+  return list.map(o=>`<span class="gc${(POP[t]&&o.i===all.length-1)?' new':''}">⚽ ${esc(shortN(o.x.name)||'Gol')}${o.x.own?' (a.g.)':''}${o.x.pen?' (p)':''} ${esc(o.x.min)}</span>`).join('');
  };
  let mid=`<span>${esc(p.l)}</span>`;
  if(ci.has&&S.clock.added>0)mid+=`<span class="add">+${S.clock.added}'</span>`;
@@ -488,6 +491,12 @@ function lineupHTML(t,two,d){
   <div class="lh">${lg(t,two?84:104)}<div><h1>${esc(T.name)}</h1><h3>${T.dt?'DT: '+esc(T.dt):''}${T.dt&&T.form?'   |   ':''}${T.form?esc(T.form):''}</h3></div></div>
   <div class="cols"><div><h4>TITULARES</h4>${st.map(row).join('')}</div>${two?'':`<div><h4>SUPLENTES</h4>${bn.map(row).join('')}</div>`}</div>
  </div>`;
+}
+function scMode(){return S.ui.scorerMode||(S.ui.scorers===false?'off':'timed');}
+function scVis(){
+ if(scMode()!=='timed')return '';
+ const ms=(+S.ui.scorerSecs||12)*1000,now=Date.now(),man=(S.sShow||0)>now,d=derive();
+ return ['A','B'].map(t=>d.goals[t].map(x=>(man||now-x.id<ms)?1:0).join('')).join('|');
 }
 function shortN(n){n=String(n||'').trim();if(n.length<=14)return n;const w=n.split(/\s+/);return w[w.length-1];}
 function cdRem(){const c=S.cd;return Math.max(0,c.dur-(c.base+(c.running?Date.now()-c.t0:0)));}
@@ -612,12 +621,13 @@ function fxFor(f){
 }
 function renderDisplay(){
  const d=derive();
+ lastVis=scVis();
  document.getElementById('stage').classList.toggle('ucl',S.ui.theme!=='classic');
  const wrap=document.getElementById('bugwrap');
  wrap.style.cssText=posStyle();wrap.style.position='absolute';
  POP.A=lastSc!==null&&d.sc.A>lastSc.A;POP.B=lastSc!==null&&d.sc.B>lastSc.B;
  bugEnter=wrap.innerHTML==='';lastSc={A:d.sc.A,B:d.sc.B};
- setHTML('bugwrap',JSON.stringify([S.bug,S.A.short,S.A.name,S.A.c1,S.A.c2,S.A.logo,S.B.short,S.B.name,S.B.c1,S.B.c2,S.B.logo,d.sc,d.red,S.clock.period,S.clock.added,S.pens,S.match.torneo,S.match.logo,d.goals,S.ui.scorers]),S.bug?bugHTML(d):'');
+ setHTML('bugwrap',JSON.stringify([S.bug,S.A.short,S.A.name,S.A.c1,S.A.c2,S.A.logo,S.B.short,S.B.name,S.B.c1,S.B.c2,S.B.logo,d.sc,d.red,S.clock.period,S.clock.added,S.pens,S.match.torneo,S.match.logo,d.goals,S.ui.scorers,S.ui.scorerMode,scVis()]),S.bug?bugHTML(d):'');
  setHTML('scene',JSON.stringify([S.scene,S.A,S.B,S.match,S.refs,S.events,S.adj,S.pens,S.clock.period>=9,S.stats,S.sp.items,S.cd]),sceneHTML(d));
  {const sk=S.scene||'';if(sk!==lastSceneKey){if(lastSceneKey!==null&&S.ui.theme!=='classic'){const w=document.getElementById('wipe');if(w){w.className='';void w.offsetWidth;w.className='go';}}lastSceneKey=sk;}}
  setHTML('brk',JSON.stringify(S.brk),S.brk.on?`<div class="brk"><div>${esc(S.brk.label)}</div><div id="bt">${fmt(brkRem(),true)}</div></div>`:'');
@@ -647,6 +657,7 @@ function tickSponsors(){
 }
 function tickDisplay(){
  tickSponsors();
+ if(scVis()!==lastVis)renderDisplay();
  const cdE=document.getElementById('cdt');if(cdE){const r=cdRem();cdE.textContent=cdTxt();cdE.classList.toggle('pulse',r<=10000);}
  const c=document.getElementById('clk');
  if(c){const ci=clockInfo();if(ci.has){c.textContent=ci.txt;const o=document.getElementById('ov');if(o)o.textContent=ci.over;}}
@@ -784,9 +795,27 @@ const LK='mfutbol_lib';
 function libGet(){try{const l=JSON.parse(localStorage.getItem(LK))||{};return{matches:l.matches||{},teams:l.teams||{}};}catch(e){return{matches:{},teams:{}};}}
 function libPut(l){try{localStorage.setItem(LK,JSON.stringify(l));return true;}catch(e){alert('No hay espacio para guardar. Borra algo de la biblioteca o usa imágenes más pequeñas.');return false;}}
 const fdate=ts=>{try{return new Date(ts).toLocaleString('es-BO',{dateStyle:'short',timeStyle:'short'});}catch(e){return '';}};
-X.cdStart=()=>{if(S.clock.period!==0){X.toast('El partido ya empezó: la cuenta regresiva es solo para la previa.');return;}const m=Math.max(1,+S.cd.min||5);S.cd={min:m,dur:m*60000,base:0,t0:Date.now(),running:true};S.scene='cd';commit();render();};
+X.cdStart=()=>{if(S.clock.period!==0){X.toast('El partido ya empezó: la cuenta regresiva es solo para la previa.');return;}const m=Math.max(1,+S.cd.min||5);S.cd={min:m,dur:m*60000,base:0,t0:Date.now(),running:true,auto:!!S.cd.auto,fired:false};S.scene='cd';commit();render();};
 X.cdToggle=()=>{const c=S.cd;if(c.running){c.base+=Date.now()-c.t0;c.running=false;}else{if(c.base===0)c.dur=(+c.min||5)*60000;c.t0=Date.now();c.running=true;}commit();render();};
-X.cdReset=()=>{const c=S.cd;c.base=0;c.running=false;c.dur=(+c.min||5)*60000;commit();render();};
+X.cdReset=()=>{const c=S.cd;c.base=0;c.running=false;c.fired=false;c.dur=(+c.min||5)*60000;commit();render();};
+X.showScorers=()=>{S.sShow=Date.now()+(+S.ui.scorerSecs||12)*1000;commit();render();};
+let INFO=null;
+X.info=m=>{INFO=m;render();setTimeout(()=>{INFO=null;if(!typing())render();},9000);};
+function cdCheck(){
+ const c=S.cd;if(!c.running||c.fired||!(c.dur>0)||cdRem()>0)return;
+ c.fired=true;commit();
+ setTimeout(()=>{
+  if(S.scene==='cd')S.scene='';
+  S.cd.running=false;S.cd.base=0;
+  let msg='La cuenta regresiva terminó.';
+  if(S.clock.period===0){
+   X.setPeriod(1);
+   if(S.cd.auto){X.toggle();msg+=' El 1T arrancó automáticamente.';}
+   else msg+=' Todo listo en el 1T: pulsa «▶ Iniciar 1T» cuando el árbitro pite.';
+  }
+  TAB='live';commit();X.info(msg);window.scrollTo(0,0);
+ },2500);
+}
 X.libSaveMatch=()=>{
  const i=document.getElementById('libname'),n=(i&&i.value.trim())||(S.A.name+' vs '+S.B.name),l=libGet();
  if(l.matches[n]&&!confirm('Ya existe «'+n+'». ¿Reemplazarlo?'))return;
@@ -918,7 +947,8 @@ function liveTab(){
    ${S.brk.on?`<div class="row"><b>${esc(S.brk.label)}</b> <span id="pbrk" class="clkbig" style="font-size:30px">${fmt(brkRem(),true)}</span><button onclick="X.brkToggle()">${S.brk.running?'Pausar':'Seguir'}</button><button class="r" onclick="X.brkHide()">Ocultar</button></div>`:'<div class="mut">Al iniciar una pausa, el reloj de juego se detiene solo. Acuérdate de reanudarlo después.</div>'}
   </div>
 
-  <div class="card" style="margin-top:14px"><h3>Gráficos en pantalla</h3>${sceneBtns(['stats','sum','lineAB','spons','pens'])}</div>
+  <div class="card" style="margin-top:14px"><h3>Gráficos en pantalla</h3>${sceneBtns(['stats','sum','lineAB','spons','pens'])}
+   <div class="row"><button onclick="X.safe('scr',()=>X.showScorers())">⚽ Mostrar goleadores ${S.ui.scorerSecs||12} s</button><span class="mut">Los goleadores aparecen solos tras cada gol y se ocultan.</span></div></div>
  </div>
  <div>
   ${BLK?`<div class="toast">⛔ <b>No se puede registrar: ${EVN[BLK.type]}</b><br>${esc(BLK.reason)}<br><button onclick="X.blkClose()">Entendido</button> <button class="y" onclick="X.blkForce()">Registrar de todos modos</button></div>`:''}
@@ -959,7 +989,7 @@ function gfxTab(){
   <div class="row"><label>Tamaño ${S.ui.scale}%</label><input type="range" min="50" max="140" step="5" data-p="ui.scale" value="${S.ui.scale}" oninput="this.previousElementSibling.textContent='Tamaño '+this.value+'%'"></div>
   <div class="row"><label>Estilo de gráficos</label><select data-p="ui.theme"><option value="ucl" ${S.ui.theme!=='classic'?'selected':''}>Noche de copa europea (estilo Champions)</option><option value="classic" ${S.ui.theme==='classic'?'selected':''}>Clásico</option></select></div>
   <div class="row"><label><input type="checkbox" data-p="ui.safe" ${S.ui.safe!==false?'checked':''}> 🛡 Modo seguro: pedir doble clic antes de sacar algo al aire</label></div>
-  <div class="row"><label><input type="checkbox" data-p="ui.scorers" ${S.ui.scorers!==false?'checked':''}> Mostrar goleadores bajo el marcador</label></div>
+  <div class="row"><label>Goleadores bajo el marcador</label><select data-p="ui.scorerMode"><option value="timed" ${scMode()==='timed'?'selected':''}>Solo unos segundos tras cada gol</option><option value="always" ${scMode()==='always'?'selected':''}>Siempre visibles</option><option value="off" ${scMode()==='off'?'selected':''}>Ocultos</option></select><label>Segundos</label><input type="number" min="3" max="60" style="width:70px" data-p="ui.scorerSecs" value="${S.ui.scorerSecs||12}"></div>
   <div class="row"><label><input type="checkbox" data-p="auto" ${S.auto?'checked':''}> Mostrar banner automático al registrar gol, tarjeta o cambio</label></div>
   <div class="row"><label><input type="checkbox" data-p="fx" ${S.fx!==false?'checked':''}> Efectos de celebración (confeti y destellos)</label><button class="sm" onclick="X.testGoal()">Probar gol</button></div>
   <div class="row"><button class="r" onclick="X.hideFlash()">Ocultar banner ahora</button></div></div>
@@ -1027,6 +1057,8 @@ function prevTab(){
  const cdCard=`<div class="card"><h3>Cuenta regresiva de inicio</h3>
  <div class="row"><label>Minutos</label><input type="number" min="1" max="60" style="width:70px" data-p="cd.min" value="${esc(S.cd.min)}"><button class="g" onclick="X.safe('cdgo',()=>X.cdStart())">▶ Iniciar y mostrar</button><button onclick="X.cdToggle()">${S.cd.running?'⏸ Pausar':'▶ Seguir'}</button><button onclick="X.cdReset()">↺ Reiniciar</button></div>
  <div class="row"><b id="pcd" class="clkbig" style="font-size:36px">${(S.cd.running||S.cd.base>0)?fmt(cdRem(),true):fmt((+S.cd.min||5)*60000,true)}</b><span class="mut">Se ve en pantalla con los escudos. Al llegar a cero dice «¡YA!».</span></div>
+ <div class="row"><label><input type="checkbox" data-p="cd.auto" ${S.cd.auto?'checked':''}> Iniciar también el reloj del 1T al llegar a cero</label></div>
+ <div class="mut">Al llegar a cero: se muestra «¡YA!» 2 segundos, la pantalla muestra el marcador y el panel pasa a En vivo con el 1T listo. Por defecto el reloj NO arranca solo, porque el pitazo casi nunca coincide con el segundo exacto.</div>
  <div class="mut">Las alineaciones tácticas dibujan a los titulares en la cancha según el esquema (ej. 4-4-2). Ordena la lista así: primero el portero, luego defensas, volantes y delanteros.</div></div>`;
  return `<div class="grid"><div class="card"><h3>Lista de verificación</h3>${rows}</div>
  <div class="card steps"><h3>Secuencia de gráficos</h3>
@@ -1100,7 +1132,7 @@ function render(){
  const y=window.scrollY;
  document.getElementById('app').innerHTML=`<header class="top"><h1>⚽ Marcador</h1>
  <div class="grps">${GROUPS.map(x=>`<button class="grp ${x===g?'on':''}${x.n?'':' alt'}" onclick="X.tab('${x.tabs[0][0]}')">${x.n?`<span class="num">${x.n}</span>`:''}${x.ic} ${x.l}</button>`).join('')}</div>
- <nav class="sub">${g.tabs.length>1?g.tabs.map(t=>`<button class="tab ${TAB===t[0]?'on':''}" onclick="X.tab('${t[0]}')">${t[1]}</button>`).join(''):`<b style="color:var(--acc)">${g.tabs[0][1]}</b>`}<span class="hint">${g.hint}</span></nav></header><main>${TOAST?`<div class="toast">⛔ ${esc(TOAST)}</div>`:''}${body}</main>`;
+ <nav class="sub">${g.tabs.length>1?g.tabs.map(t=>`<button class="tab ${TAB===t[0]?'on':''}" onclick="X.tab('${t[0]}')">${t[1]}</button>`).join(''):`<b style="color:var(--acc)">${g.tabs[0][1]}</b>`}<span class="hint">${g.hint}</span></nav></header><main>${INFO?`<div class="toast ok">✅ ${esc(INFO)}</div>`:''}${TOAST?`<div class="toast">⛔ ${esc(TOAST)}</div>`:''}${body}</main>`;
  if(ARM&&armed(ARM.k)){document.querySelectorAll('#app button').forEach(b=>{const o=b.getAttribute('onclick')||'';if(o.includes("'"+ARM.k+"'")&&!b.classList.contains('arm')){b.classList.add('arm');b.textContent='⚠ ¿Seguro? Clic otra vez';}});}
  const pvb=document.getElementById('pv');if(pvb)pvb.style.display=TAB==='view'?'none':'';
  if(TAB==='view'){const f=document.getElementById('bigf');f.addEventListener('load',pvPost);f.srcdoc=pvSrcdoc();bigFit();}
@@ -1157,11 +1189,13 @@ function pvInit(){
 function initPanel(){
  const per=S.clock.period,fresh=S.A.name==='Equipo A'&&S.B.name==='Equipo B'&&!S.events.length&&per===0;
  TAB=fresh?'teams':per===0?'prev':per===8?'pens':per===9?'end':'live';
+ cdCheck();
  render();
  pvInit();
  setInterval(()=>{
   const c=document.getElementById('pclk');if(c){const ci=clockInfo();if(ci.has){c.textContent=ci.txt;const o=document.getElementById('pov');if(o)o.textContent=ci.over+' ';}}
   const b=document.getElementById('pbrk');if(b)b.textContent=fmt(brkRem(),true);
+  cdCheck();
   const pc=document.getElementById('pcd');if(pc)pc.textContent=(S.cd.running||S.cd.base>0)?fmt(cdRem(),true):fmt((+S.cd.min||5)*60000,true);
  },200);
 }
